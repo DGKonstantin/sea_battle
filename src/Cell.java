@@ -5,15 +5,11 @@ public class Cell {
 
     boolean isChecked;
     boolean isShip;
-    boolean isBusy;
+    boolean isEmpty;
 
     public Cell(int x, int y) {
         this.x = x;
         this.y = y;
         isChecked = false;
-        isBusy = false;
-        isShip = false;
     }
-
-
 }
