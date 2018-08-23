@@ -1,3 +1,7 @@
+
+import java.util.LinkedList;
+import java.util.List;
+
 public class Sea {
 
     Ship[] ships;
@@ -16,7 +20,23 @@ public class Sea {
     }
 
     private void createShips(){
-        while (!paintShip(4)){}
+        int count = 0;
+
+        while (!paintShip(4)){count++;};
+        while (!paintShip(3)){count++;};
+        while (!paintShip(3)){count++;};
+        while (!paintShip(2)){count++;};
+        while (!paintShip(2)){count++;};
+        while (!paintShip(2)){count++;};
+        while (!paintShip(1)){count++;};
+        while (!paintShip(1)){count++;};
+        while (!paintShip(1)){count++;};
+        while (!paintShip(1)){count++;};
+        print();
+        System.out.println(count);
+/*
+
+        */
     }
 
     private boolean paintShip(int countDescks){
@@ -24,35 +44,46 @@ public class Sea {
         System.out.println(ship.toString());
         for(Cell c : ship.cells){
             if (ship.taleX > cols - 1 || ship.taleY > rows - 1) return false;
-            for (int i = -1; i <= 1; i++) {
-                for (int j = -1; j <= 1; j++) {
-                    try{
-                        if (sea[c.x + i][c.y + j].isEmpty){
-                            return false;
-                        }
-                    }catch (Exception e){}
-                }
-            }
+            if (sea[c.x][c.y].isEmpty) return false;
         }
         for(Cell c : ship.cells){
             sea[c.x][c.y] = c;
         }
         fillEmptyZones(ship);
+        System.out.println(ship.toString());
         return true;
     }
 
     private void fillEmptyZones(Ship ship){
-        for(Cell c : ship.cells){
-            if (ship.isGorizontal){
+        if (ship.isVertical){
+            if (ship.headY > 0){
+                sea[ship.headX][ship.headY - 1].isEmpty = true;
+                if (ship.headX > 0) sea[ship.headX - 1][ship.headY - 1].isEmpty = true;
+                if (ship.headX < rows - 1) sea[ship.headX + 1][ship.headY - 1].isEmpty = true;
+            }
+            if (ship.taleY < rows - 1){
+                sea[ship.taleX][ship.taleY + 1].isEmpty = true;
+                if (ship.taleX > 0) sea[ship.taleX - 1][ship.taleY + 1].isEmpty = true;
+                if (ship.taleX < rows - 1) sea[ship.taleX + 1][ship.taleY + 1].isEmpty = true;
+            }
+            for (Cell c : ship.cells){
                 if (c.x > 0) sea[c.x - 1][c.y].isEmpty = true;
-                if (c.x < cols) sea[c.x + 1][c.y].isEmpty = true;
-                if (ship.headY > 0){
-                    sea[c.x][c.y - 1].isEmpty = true;
-                    if (ship.headX > 0) sea[c.x + 1][c.y].isEmpty = true;
-                }
-            }else {
+                if (c.x < cols - 1) sea[c.x + 1][c.y].isEmpty = true;
+            }
+        }else {
+            if (ship.headX > 0){
+                sea[ship.headX - 1][ship.headY].isEmpty = true;
+                if (ship.headY > 0) sea[ship.headX - 1][ship.headY - 1].isEmpty = true;
+                if (ship.headY < rows - 1) sea[ship.headX - 1][ship.headY + 1].isEmpty = true;
+            }
+            if (ship.taleX < rows - 1){
+                sea[ship.taleX + 1][ship.taleY].isEmpty = true;
+                if (ship.taleY > 0) sea[ship.taleX + 1][ship.taleY - 1].isEmpty = true;
+                if (ship.taleY < rows - 1) sea[ship.taleX + 1][ship.taleY + 1].isEmpty = true;
+            }
+            for (Cell c : ship.cells){
                 if (c.y > 0) sea[c.x][c.y - 1].isEmpty = true;
-                if (c.y < rows) sea[c.x][c.y + 1].isEmpty = true;
+                if (c.y < rows - 1) sea[c.x][c.y + 1].isEmpty = true;
             }
         }
     }
@@ -60,18 +91,36 @@ public class Sea {
     private Ship createShip(int countDescks){
         int headX = -1;
         int headY = -1;
+        boolean isVertical = Math.random() < 0.5;
         while (headX < 0 || headY < 0){
-            headX = (int) (Math.random() * 10) - countDescks;
-            headY = (int) (Math.random() * 10) - countDescks;
+            Cell cell = getFreeCells().get((int) (Math.random() * getFreeCells().size()));
+            if (!isVertical) {
+                headX = cell.x - countDescks;
+                headY = cell.y;
+            }
+            else {
+                headX = cell.x;
+                headY = cell.y - countDescks;
+            }
         }
-        return new Ship(headX, headY, countDescks, Math.random() < 0.5);
+        return new Ship(headX, headY, countDescks, isVertical);
+    }
+
+    private List<Cell> getFreeCells(){
+        List<Cell> list = new LinkedList<Cell>();
+        for (int i = 0; i < sea.length; i++) {
+            for (int j = 0; j < sea[0].length; j++) {
+                if (!sea[j][i].isEmpty && !sea[j][i].isShip) list.add(sea[j][i]);
+            }
+        }
+        return list;
     }
 
     public void print(){
         for (int i = 0; i < sea.length; i++) {
             for (int j = 0; j < sea[0].length; j++) {
-                if (sea[i][j].isShip) System.out.print("S ");
-                else if (sea[i][j].isEmpty)System.out.print("* ");
+                if (sea[j][i].isShip) System.out.print("S ");
+                else if (sea[j][i].isEmpty)System.out.print("* ");
                 else System.out.print("a ");
             }
             System.out.println();
